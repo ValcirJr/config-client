@@ -1,0 +1,29 @@
+package org.example.configclientapp.config;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.env.EnvironmentPostProcessor;
+import org.springframework.cloud.config.client.ConfigClientProperties;
+import org.springframework.cloud.config.client.ConfigServicePropertySourceLocator;
+import org.springframework.core.env.ConfigurableEnvironment;
+import org.springframework.core.env.PropertySource;
+import org.springframework.web.client.RestTemplate;
+
+import java.util.Collections;
+
+public class CustomEnvironmentPostProcessor implements EnvironmentPostProcessor {
+
+    @Override
+    public void postProcessEnvironment(ConfigurableEnvironment environment, SpringApplication application) {
+        String authToken = "eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICItN3FvRllzcnlwVDBCc01rTUFWdGpIRjM1c2VFdml2NUowZ1pndV9PclNvIn0.eyJleHAiOjE3MzA0NzA3MDcsImlhdCI6MTczMDQ2OTUwNywianRpIjoiZjY4ODZjY2MtZWYwNi00NmMzLTg5NTEtZTJkMzU4ZGE2ZTRhIiwiaXNzIjoiaHR0cDovL2xvY2FsaG9zdDo4MTgwL3JlYWxtcy9tYXN0ZXIiLCJhdWQiOlsibWFzdGVyLXJlYWxtIiwiYWNjb3VudCJdLCJzdWIiOiIyNjBhMjUyNS1jYjliLTRkODUtYWU4OS0zYzdjOGNkMWY4MjkiLCJ0eXAiOiJCZWFyZXIiLCJhenAiOiJzcHJpbmctYXBwIiwiYWNyIjoiMSIsInJlYWxtX2FjY2VzcyI6eyJyb2xlcyI6WyJkZWZhdWx0LXJvbGVzLW1hc3RlciIsIm9mZmxpbmVfYWNjZXNzIiwidW1hX2F1dGhvcml6YXRpb24iXX0sInJlc291cmNlX2FjY2VzcyI6eyJtYXN0ZXItcmVhbG0iOnsicm9sZXMiOlsiY3JlYXRlLWNsaWVudCJdfSwiYWNjb3VudCI6eyJyb2xlcyI6WyJtYW5hZ2UtYWNjb3VudCIsIm1hbmFnZS1hY2NvdW50LWxpbmtzIiwidmlldy1wcm9maWxlIl19fSwic2NvcGUiOiJlbWFpbCBwcm9maWxlIiwiY2xpZW50SG9zdCI6IjEyNy4wLjAuMSIsImVtYWlsX3ZlcmlmaWVkIjpmYWxzZSwicHJlZmVycmVkX3VzZXJuYW1lIjoic2VydmljZS1hY2NvdW50LXNwcmluZy1hcHAiLCJjbGllbnRBZGRyZXNzIjoiMTI3LjAuMC4xIiwiY2xpZW50X2lkIjoic3ByaW5nLWFwcCJ9.JixS-hzAOlP7zmMTi4pig9rhKhR4P_7cMFc8yjDgrOzPXpV56LQhAwu4BWC2Gh1p_yjRm8pcYZex7oRdG1KFkuktUny9AO51ddAbVZ4qC1paIXaZ3RjhaIVmXBfBvFkkRSY3u8N0kruGTEZbDM1w9OpMw__kOyACcll-Xo4VbcQ__Gp2traQmB8Tj266uQd2Y9q6RYZxA282xmGwGY4LSOsJxPcywZ4nOd6_cmnkStyA5ARtnJe_PFb8-2JCwLdwu4UQihMgcc517nWPGSwEI1tav6duOeBigmcJBM31U7H480uq_KNx-m9-jKgfp6fqoJ-oOo3Azobbc83j9mGooA";
+        RestTemplate restTemplate = new RestTemplate();
+        restTemplate.setInterceptors(Collections.singletonList(new AuthenticationInterceptor(authToken)));
+
+        ConfigClientProperties clientProperties = new ConfigClientProperties(environment);
+        ConfigServicePropertySourceLocator locator = new ConfigServicePropertySourceLocator(clientProperties);
+        locator.setRestTemplate(restTemplate);
+
+        PropertySource<?> propertySource = locator.locate(environment);
+        environment.getPropertySources().addFirst(propertySource);
+    }
+}
+
